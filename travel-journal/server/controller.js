@@ -28,6 +28,7 @@ module.exports = {
                 country_id integer foreign key references countries(country_id)
             );
 
+
             insert into countries (name)
             values ('Afghanistan'),
             ('Albania'),
@@ -239,12 +240,27 @@ module.exports = {
     } ,
     createCity: (req,res) =>{
         let {name, rating, countryId} = req.body
-        sequelize.query(`INSERT INTO cities (name, rating, countryId) VALUES (${name}, ${rating}, ${countryId}) `)
+        sequelize.query(`INSERT INTO cities (name, rating, country_id) VALUES ('${name}', '${rating}', '${countryId}') `)
+        .then(() =>
+             res.status(200))
+        .catch(err=>console.log(err))
+    
+    },
+    getCities: (req,res) =>{
+        sequelize.query(`SELECT cities.city_id, cities.name AS city, cities.rating, countries.country_id, countries.name as country 
+        FROM cities INNER JOIN countries ON cities.country_id=countries.country_id`)
         .then((dbRes) =>{
             console.log(dbRes);
-             res.status(200);
+             res.status(200).send(dbRes[0]);
         })
         .catch((err)=>console.log(err));
-    
+    }, 
+    deleteCity: (req, res) => {
+        let {id} = req.params
+        sequelize.query(`Delete FROM cities WHERE city_id='${id}'`)
+        .then((dbRes) => {
+            res.status(200).send(dbRes[0])
+        })
+        .catch(err => console.log(err))
     }
 }
